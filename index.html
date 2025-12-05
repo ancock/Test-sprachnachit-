@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sprachnachricht Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 24px; max-width: 720px; margin:auto; }
+    h1 { margin-top:0 }
+    .card { border: 1px solid #ddd; padding:16px; border-radius:8px; margin-bottom:16px; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    button { padding: 8px 12px; cursor:pointer; }
+    audio { width:100%; margin-top:8px; }
+    .hint { color:#555; font-size:0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Sprachnachricht</h1>
+
+  <!-- Abschnitt 1: Eingebettete, bereits hochgeladene Datei -->
+  <div class="card">
+    <h2>Abspielbare Sprachnachricht (eingebettet)</h2>
+    <!-- Pfad zur Datei: audio/meine_sprachnachricht.mp3 -->
+    <audio controls>
+      <source src="audio/meine_sprachnachricht.mp3" type="audio/mpeg">
+      Dein Browser unterstützt das Audio-Element nicht.
+    </audio>
+    <p class="hint">Tausche die Datei in /audio/ gegen deine eigene mp3/wav aus.</p>
+  </div>
+
+  <!-- Abschnitt 2: Aufnahme im Browser (MediaRecorder) -->
+  <div class="card">
+    <h2>Im Browser aufnehmen (speichern & testen)</h2>
+    <div class="controls">
+      <button id="startBtn">Aufnahme starten</button>
+      <button id="stopBtn" disabled>Aufnahme stoppen</button>
+      <button id="playBtn" disabled>Abspielen</button>
+      <a id="downloadLink" style="display:none;">Aufnahme herunterladen</a>
+    </div>
+    <audio id="player" controls></audio>
+    <p class="hint">Die Aufnahme wird lokal im Browser erstellt — du kannst sie herunterladen und danach in /audio/ hochladen.</p>
+  </div>
+
+<script>
+  // Recorder code (MediaRecorder)
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn  = document.getElementById('stopBtn');
+  const playBtn  = document.getElementById('playBtn');
+  const player   = document.getElementById('player');
+  const downloadLink = document.getElementById('downloadLink');
+
+  let mediaRecorder;
+  let recordedBlobs;
+
+  startBtn.addEventListener('click', async () => {
+    recordedBlobs = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size) recordedBlobs.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const superBuffer = new Blob(recordedBlobs, { type: 'audio/webm' });
+        player.src = URL.createObjectURL(superBuffer);
+        downloadLink.href = player.src;
+        // Name .webm — du kannst mit einem Audiokonverter in mp3 umwandeln oder browserseitig in wav (komplizierter)
+        downloadLink.download = 'aufnahme.webm';
+        downloadLink.style.display = 'inline-block';
+        playBtn.disabled = false;
+      };
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    } catch (err) {
+      alert('Aufnahme fehlgeschlagen: ' + err.message);
+    }
+  });
+
+  stopBtn.addEventListener('click', () => {
+    mediaRecorder.stop();
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+  });
+
+  playBtn.addEventListener('click', () => {
+    player.play();
+  });
+</script>
+</body>
+</html>
