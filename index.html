@@ -28,19 +28,6 @@
     <p class="hint">Tausche die Datei in /audio/ gegen deine eigene mp3/wav aus.</p>
   </div>
 
-  <!-- Abschnitt 2: Aufnahme im Browser (MediaRecorder) -->
-  <div class="card">
-    <h2>Im Browser aufnehmen (speichern & testen)</h2>
-    <div class="controls">
-      <button id="startBtn">Aufnahme starten</button>
-      <button id="stopBtn" disabled>Aufnahme stoppen</button>
-      <button id="playBtn" disabled>Abspielen</button>
-      <a id="downloadLink" style="display:none;">Aufnahme herunterladen</a>
-    </div>
-    <audio id="player" controls></audio>
-    <p class="hint">Die Aufnahme wird lokal im Browser erstellt — du kannst sie herunterladen und danach in /audio/ hochladen.</p>
-  </div>
-
 <script>
   // Recorder code (MediaRecorder)
   const startBtn = document.getElementById('startBtn');
